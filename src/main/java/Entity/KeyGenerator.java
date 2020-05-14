@@ -53,7 +53,7 @@ public class KeyGenerator {
         secureRandom.nextBytes(bytes);
         try {
 
-            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
+            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(algorithme, provider);
             keyPairGen.initialize(taille, secureRandom);
             KeyPair keyPair = keyPairGen.generateKeyPair();
             // cle private

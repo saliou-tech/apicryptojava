@@ -33,16 +33,17 @@ public class KeyPairGeneratorController {
 
     //ajouter un produit
     @PostMapping("/generate")
-    public String CreateKey(@RequestBody KeyGenerator key) {
+    public  String CreateKey(@RequestBody KeyGenerator key) {
 
 
         List<String> list = key.createKeys(key.getAlgorithme(), key.getProvider(), key.getTaille());
+
         System.out.println(list.get(0)+list.get(1));
 
         if(key.saveKey(list.get(0),list.get(1))){
-            return  "cle sauvegarde avec succes";
+            return list.get(0);
         }else{
-            return  "une erreur es survenue";
+            return "une erreur est survenue lors de la generation des clés";
         }
        /* System.out.println(key.getTaille());
         return key.getTaille();*/
