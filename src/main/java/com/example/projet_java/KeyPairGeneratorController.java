@@ -1,6 +1,6 @@
 package com.example.projet_java;
 
-import Entity.KeyGenerator;
+import Entity.KeyGeneratorEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.util.List;
 public class KeyPairGeneratorController {
     @GetMapping("/")
     public String  getKeyPairGenerator(){
-        KeyGenerator key = new KeyGenerator();
+        KeyGeneratorEntity key = new KeyGeneratorEntity();
         if(key.loadkey()){
             return "la cle est charge avec succes ";
         }else{
@@ -33,10 +33,21 @@ public class KeyPairGeneratorController {
 
     //ajouter un produit
     @PostMapping("/generate")
-    public  String CreateKey(@RequestBody KeyGenerator key) {
+    public  String CreateKey(@RequestBody KeyGeneratorEntity key) {
+        List<String> list = null;
+        System.out.println( "algo recu "+key.getAlgorithme());
+        if (key.getAlgorithme().equals("RSA")||key.getAlgorithme().equals("DSA")||key.getAlgorithme().equals("DH"))
+        {
+            System.out.println(("c'est asymetrique"));
+
+             list = key.createKeys(key.getAlgorithme(), key.getProvider(), key.getTaille(),true);
+        }
+        else {
+            System.out.println(("c'est symetrique"));
+            list = key.createKeys(key.getAlgorithme(), key.getProvider(), key.getTaille(),false);
+        }
 
 
-        List<String> list = key.createKeys(key.getAlgorithme(), key.getProvider(), key.getTaille());
 
         System.out.println(list.get(0)+list.get(1));
 
@@ -47,6 +58,19 @@ public class KeyPairGeneratorController {
         }
        /* System.out.println(key.getTaille());
         return key.getTaille();*/
+
+
+
+    }
+
+
+
+    @PostMapping("/encrypt")
+    public  String ChiffrementMessageSmetrique(@RequestBody KeyGeneratorEntity key) {
+
+
+       return key.ChiffrementSymetriqueMessage(key.getClepriv(),key.getMessage(),key.getAlgorithme());
+
 
 
 
