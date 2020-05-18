@@ -9,6 +9,7 @@ import java.security.*;
 import java.util.ArrayList;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import java.util.Base64;
 import java.util.List;
 import  javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
@@ -95,22 +96,28 @@ public class KeyGeneratorEntity {
                KeyPair keyPair = keyPairGen.generateKeyPair();
                // cle private
                PrivateKey priv = keyPair.getPrivate();
-               System.out.println(ByteHex.bytesToHex(priv.getEncoded()));
-               list.add(ByteHex.bytesToHex(priv.getEncoded()));
+               String clepriv = Base64.getEncoder().encodeToString(priv.getEncoded());
+               System.out.println(clepriv);
+               list.add(clepriv);
 
                PublicKey pub = keyPair.getPublic();
-               System.out.println(ByteHex.bytesToHex(pub.getEncoded()));
-               list.add(ByteHex.bytesToHex(pub.getEncoded()));
+               String clepub = Base64.getEncoder().encodeToString(pub.getEncoded());
+               System.out.println(clepub);
+               //System.out.println(ByteHex.bytesToHex(pub.getEncoded()));
+               list.add(clepub);
            }
            else {
                System.out.println("dans le else "+algorithme);
                KeyGenerator keyGen = KeyGenerator.getInstance(algorithme, provider);
                keyGen.init(taille);
                SecretKey secretKey = keyGen.generateKey();
-               list.add(ByteHex.bytesToHex(secretKey.getEncoded()));
+               String clepriv = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+               list.add(clepriv);
+
+              // list.add(ByteHex.bytesToHex(secretKey.getEncoded()));
                System.out.println("ma cle " + secretKey.getAlgorithm() + " " + secretKey.getFormat() + " "
                        + ByteHex.bytesToHex(secretKey.getEncoded()));
-               list.add(ByteHex.bytesToHex(secretKey.getEncoded()));
+               list.add(clepriv);
            }
             return list;
 
@@ -193,12 +200,15 @@ public class KeyGeneratorEntity {
                 Cipher cipher = Cipher.getInstance( algorithme );
                 try {
 
-                    byte[] data =  clesecret.getBytes();
-                    SecretKey secretkey = new SecretKeySpec( data, algorithme);
+                   /* byte[] data =  clesecret.getBytes();
+                    SecretKey secretkey = new SecretKeySpec( data, algorithme);*/
+                    byte[] decodedKey = Base64.getDecoder().decode(clesecret);
+// rebuild key using SecretKeySpec
+                    SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, algorithme);
 
-                    System.out.println( secretkey.toString() );
+                    System.out.println( originalKey.toString() );
 
-                    cipher.init( Cipher.ENCRYPT_MODE, secretkey );
+                    cipher.init( Cipher.ENCRYPT_MODE, originalKey );
                     try {
                         textCipher = cipher.doFinal( messageBytes);
                         System.out.println( "le chiffre"+ textCipher);
