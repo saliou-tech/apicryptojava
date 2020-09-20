@@ -21,6 +21,24 @@ public class KeyGeneratorEntity {
     String clepriv;
     String clepub;
     String message;
+    String file;
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
+
+    public boolean isAsymetrique() {
+        return asymetrique;
+    }
+
+    public void setAsymetrique(boolean asymetrique) {
+        this.asymetrique = asymetrique;
+    }
+
     boolean asymetrique = false;
 
     public String getMessage() {
@@ -234,6 +252,53 @@ public class KeyGeneratorEntity {
             return  ByteHex.bytesToHex( textCipher );
         }
 
+
+public String ChiffrerFichierSymetrique(String algorithme,String file,int taille){
+
+    try {
+        KeyGenerator keyGen=KeyGenerator.getInstance(algorithme);
+        keyGen.init(taille);
+        SecretKey secretKey=keyGen.generateKey();
+
+        FileInputStream fl=new FileInputStream(file);
+        FileOutputStream fos=new FileOutputStream("C:\\fakepath\\chiffre.txt");
+        Cipher cipher=Cipher.getInstance(algorithme);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        CipherInputStream cis=new CipherInputStream(fl,cipher);
+        byte[] buf =new byte[8];
+        int i =cis.read(buf);
+        while(i!=-1) {
+            fos.write(buf, 0, i);
+            i=cis.read(buf);
+        }
+        cis.close();
+        fos.close();
+        return "fichier chiffré avec succes";
+
+
+    }
+    catch (NoSuchAlgorithmException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }catch (FileNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }catch (NoSuchPaddingException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }catch (InvalidKeyException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+    return "fichier chiffré avec succes";
+
+
+
+}
 
     }
 

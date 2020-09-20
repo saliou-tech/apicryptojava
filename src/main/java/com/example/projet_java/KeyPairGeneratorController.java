@@ -69,12 +69,21 @@ public class KeyPairGeneratorController {
     public  String ChiffrementMessageSmetrique(@RequestBody KeyGeneratorEntity key) {
 
 
-       return key.ChiffrementSymetriqueMessage(key.getClepriv(),key.getMessage(),key.getAlgorithme());
+        return key.ChiffrementSymetriqueMessage(key.getClepriv(),key.getMessage(),key.getAlgorithme());
+
+
+    }
+    @PostMapping("/encryptfile")
+    public  void ChiffrementFichierSmetrique(@RequestBody KeyGeneratorEntity key) {
+
+
+        key.ChiffrerFichierSymetrique(key.getAlgorithme(),key.getFile(),key.getTaille());
 
 
 
 
     }
+
 
 
 
