@@ -33,7 +33,7 @@ public class KeyPairGeneratorController {
 
     //ajouter un produit
     @PostMapping("/generate")
-    public  String CreateKey(@RequestBody KeyGeneratorEntity key) {
+    public  List<String> CreateKey(@RequestBody KeyGeneratorEntity key) {
         List<String> list = null;
         System.out.println( "algo recu "+key.getAlgorithme());
         if (key.getAlgorithme().equals("RSA")||key.getAlgorithme().equals("DSA")||key.getAlgorithme().equals("DH"))
@@ -52,9 +52,9 @@ public class KeyPairGeneratorController {
         System.out.println(list.get(0)+list.get(1));
 
         if(key.saveKey(list.get(0),list.get(1))){
-            return list.get(0);
+            return list;
         }else{
-            return "une erreur est survenue lors de la generation des clés";
+            return list;
         }
        /* System.out.println(key.getTaille());
         return key.getTaille();*/
@@ -74,12 +74,21 @@ public class KeyPairGeneratorController {
 
     }
     @PostMapping("/encryptfile")
-    public  void ChiffrementFichierSmetrique(@RequestBody KeyGeneratorEntity key) {
+    public  String ChiffrementFichierSmetrique(@RequestBody KeyGeneratorEntity key) {
 
 
-        key.ChiffrerFichierSymetrique(key.getAlgorithme(),key.getFile(),key.getTaille());
+        return key.ChiffrerFichierSymetrique(key.getAlgorithme(),key.getFile(),key.getTaille());
 
 
+
+
+    }
+
+    @PostMapping("/signtet")
+    public  String signerMessage(@RequestBody KeyGeneratorEntity key) throws Exception {
+
+
+        return key.SignatureMeassage(key.getAlgorithme(),key.getHashingAlgo(),key.getSigningAlgo(),key.getClepriv(),key.getMessage());
 
 
     }

@@ -23,6 +23,42 @@ public class KeyGeneratorEntity {
     String message;
     String file;
 
+    public String getHashingAlgo() {
+        return hashingAlgo;
+    }
+
+    public void setHashingAlgo(String hashingAlgo) {
+        this.hashingAlgo = hashingAlgo;
+    }
+
+    public String getSigningAlgo() {
+        return signingAlgo;
+    }
+
+    public void setSigningAlgo(String signingAlgo) {
+        this.signingAlgo = signingAlgo;
+    }
+
+    String hashingAlgo, signingAlgo;
+    public MessageDigest getMd() {
+        return md;
+    }
+
+    public void setMd(MessageDigest md) {
+        this.md = md;
+    }
+
+    public Signature getSignature() {
+        return signature;
+    }
+
+    public void setSignature(Signature signature) {
+        this.signature = signature;
+    }
+
+    MessageDigest md;
+    Signature signature;
+
     public String getFile() {
         return file;
     }
@@ -115,7 +151,7 @@ public class KeyGeneratorEntity {
                // cle private
                PrivateKey priv = keyPair.getPrivate();
                String clepriv = Base64.getEncoder().encodeToString(priv.getEncoded());
-               System.out.println(clepriv);
+               System.out.println("la cle prive"+clepriv);
                list.add(clepriv);
 
                PublicKey pub = keyPair.getPublic();
@@ -221,7 +257,7 @@ public class KeyGeneratorEntity {
                    /* byte[] data =  clesecret.getBytes();
                     SecretKey secretkey = new SecretKeySpec( data, algorithme);*/
                     byte[] decodedKey = Base64.getDecoder().decode(clesecret);
-// rebuild key using SecretKeySpec
+                // rebuild key using SecretKeySpec
                     SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, algorithme);
 
                     System.out.println( originalKey.toString() );
@@ -254,14 +290,14 @@ public class KeyGeneratorEntity {
 
 
 public String ChiffrerFichierSymetrique(String algorithme,String file,int taille){
-
+String filename =file+taille+".txt";
     try {
         KeyGenerator keyGen=KeyGenerator.getInstance(algorithme);
         keyGen.init(taille);
         SecretKey secretKey=keyGen.generateKey();
 
         FileInputStream fl=new FileInputStream(file);
-        FileOutputStream fos=new FileOutputStream("C:\\fakepath\\chiffre.txt");
+        FileOutputStream fos=new FileOutputStream(new File(filename));
         Cipher cipher=Cipher.getInstance(algorithme);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
@@ -299,6 +335,40 @@ public String ChiffrerFichierSymetrique(String algorithme,String file,int taille
 
 
 }
+
+
+   public KeyGeneratorEntity DigitalSignature(PrivateKey priv, String signingAlgo, String hashingAlgo)
+            throws NoSuchAlgorithmException, InvalidKeyException{
+       KeyGeneratorEntity ke=new KeyGeneratorEntity();
+        this.md = MessageDigest.getInstance(hashingAlgo);
+        this.signature = Signature.getInstance(signingAlgo);
+        this.signature.initSign(priv, new SecureRandom());
+        ke.setMd(this.md);
+        ke.setSignature(this.signature);
+        return ke;
+
+    }
+    public byte [] generateDigest(String text) throws Exception{
+        this.md.update(text.getBytes("UTF8"));
+        return this.md.digest();
+    }
+
+    public byte[] sign(byte[] digest)throws Exception{
+        this.signature.update(digest);
+        return this.signature.sign();
+    }
+
+    public  String SignatureMeassage(String algorithme,String hashingAlgo,String signingAlgo,String clesecret,String text) throws Exception {
+        byte[] decodedKey = Base64.getDecoder().decode(clesecret);
+        // rebuild key using SecretKeySpec
+        SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, algorithme);
+        KeyGeneratorEntity ds = DigitalSignature((PrivateKey) originalKey, signingAlgo, hashingAlgo);
+        byte [] digest = ds.generateDigest(text);
+        byte [] signature = ds.sign(digest);
+        System.out.println("Digital Signature: "+  ByteHex.bytesToHex(signature));
+        return   ByteHex.bytesToHex(signature);
+    }
+
 
     }
 
