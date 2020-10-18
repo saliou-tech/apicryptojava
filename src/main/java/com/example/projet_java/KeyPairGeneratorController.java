@@ -84,10 +84,8 @@ public class KeyPairGeneratorController {
 
     }
 
-    @PostMapping("/signtet")
+    @PostMapping("/signature")
     public  String signerMessage(@RequestBody KeyGeneratorEntity key) throws Exception {
-
-
         return key.SignatureMeassage(key.getAlgorithme(),key.getHashingAlgo(),key.getSigningAlgo(),key.getClepriv(),key.getMessage());
 
 

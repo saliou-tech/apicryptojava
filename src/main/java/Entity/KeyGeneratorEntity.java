@@ -1,11 +1,16 @@
 package Entity;
 
+import sun.misc.BASE64Decoder;
+
 import javax.crypto.SecretKey;
 import java.io.*;
 
 
 import java.math.BigInteger;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -266,7 +271,7 @@ public class KeyGeneratorEntity {
                     try {
                         textCipher = cipher.doFinal( messageBytes);
                         System.out.println( "le chiffre"+ textCipher);
-                        return  ByteHex.bytesToHex( textCipher ) ;
+                        return  Base64.getEncoder().encodeToString(textCipher) ;
                     } catch ( IllegalBlockSizeException e ) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -359,10 +364,20 @@ String filename =file+taille+".txt";
     }
 
     public  String SignatureMeassage(String algorithme,String hashingAlgo,String signingAlgo,String clesecret,String text) throws Exception {
-        byte[] decodedKey = Base64.getDecoder().decode(clesecret);
+
+        byte[] keyBytes;
+        keyBytes = (new BASE64Decoder()).decodeBuffer(clesecret);
+        
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithme);
+        PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+
+       /* byte[] decodedKey = Base64.getDecoder().decode(clesecret);
+        KeyFactory kf = KeyFactory.getInstance(algorithme); // or "EC" or whatever
+        PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(decodedKey));*/
         // rebuild key using SecretKeySpec
-        SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, algorithme);
-        KeyGeneratorEntity ds = DigitalSignature((PrivateKey) originalKey, signingAlgo, hashingAlgo);
+//        SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, algorithme);
+        KeyGeneratorEntity ds = DigitalSignature( privateKey, signingAlgo, hashingAlgo);
         byte [] digest = ds.generateDigest(text);
         byte [] signature = ds.sign(digest);
         System.out.println("Digital Signature: "+  ByteHex.bytesToHex(signature));
