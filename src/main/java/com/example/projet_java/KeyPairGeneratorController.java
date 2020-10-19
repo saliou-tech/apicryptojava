@@ -91,6 +91,13 @@ public class KeyPairGeneratorController {
 
     }
 
+    @PostMapping("/signaturefichier")
+    public  String signerFichier(@RequestBody KeyGeneratorEntity key) throws Exception {
+        return key.SignatureDigitalFichier(key.getAlgorithme(),key.getTaille(),key.getFile(),key.getHashingAlgo(),key.getSigningAlgo());
+
+
+    }
+
 
 
 

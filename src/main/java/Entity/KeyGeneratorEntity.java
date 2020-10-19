@@ -385,6 +385,98 @@ String filename =file+taille+".txt";
     }
 
 
+    public String SignatureDigitalFichier(String algorithme ,int taille,String file,String hashingAlgo,String signingAlgo){
+        String privatekey=file+taille+algorithme+"priatekey.txt";
+        String publickey=file+taille+algorithme+"publickey.txt";
+        String empreinte=file+hashingAlgo+"empreinte.txt";
+        String signatur=file+signingAlgo+"signature.txt";
+
+        try {
+            KeyPairGenerator keyPairGen=KeyPairGenerator.getInstance(algorithme);
+            keyPairGen.initialize(taille);
+            KeyPair keyPair=keyPairGen.generateKeyPair();
+
+            PublicKey publicKey = keyPair.getPublic();
+            PrivateKey privateKey = keyPair.getPrivate();
+
+            ObjectOutputStream fichierPub=new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(publickey)));
+            fichierPub.writeObject(publicKey);
+            fichierPub.close();
+
+            ObjectOutputStream fichierPriv=new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(privatekey)));
+            fichierPriv.writeObject(privateKey);
+            fichierPriv.close();
+
+            MessageDigest md=MessageDigest.getInstance(hashingAlgo);
+            FileInputStream fis=new FileInputStream(file);
+            //BufferedInputStream bufis=new BufferedInputStream(fis);
+            FileOutputStream fos=new FileOutputStream(empreinte);
+            DigestInputStream dis=new DigestInputStream(fis,md);
+            DigestOutputStream dos=new DigestOutputStream(fos,md);
+
+
+            byte[] buff=new byte[8];
+            int length=dis.read(buff);
+            while(length!=-1) {
+                md.update(buff, 0, length);
+                byte[] emmp=md.digest(buff);
+                emmp=md.digest(buff);
+                dos.write(emmp);
+                length=dis.read(buff);
+
+            }
+
+            dis.close();
+            dos.close();
+
+            //signature du message
+            FileInputStream fil=new FileInputStream(empreinte);
+            FileOutputStream fol=new FileOutputStream(signatur);
+
+            BufferedInputStream buf= new BufferedInputStream(fil);
+            BufferedOutputStream out=new BufferedOutputStream(fol);
+            Signature sign= Signature.getInstance(signingAlgo);
+            sign.initSign(privateKey);
+            byte[] signature=new byte[250];
+            byte[] buff1=new byte[10];
+            int i=buf.read(buff1);
+            while(i!=-1) {
+                sign.update(buff1);
+                //byte[] signature=sign.sign();
+                signature=sign.sign();
+                out.write(signature);
+                i=buf.read(buff1);
+            }
+            buf.close();
+            out.close();
+
+            sign.initVerify(publicKey);
+            sign.update(buff1);
+            boolean resultat=sign.verify(signature);
+            System.out.println("resultat"+resultat);
+            return "fichier signé avec success";
+
+
+
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        }
+
+
+        return "";
+
+    }
+
+
     }
 
 
