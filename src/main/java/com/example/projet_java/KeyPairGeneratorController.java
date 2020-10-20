@@ -73,6 +73,12 @@ public class KeyPairGeneratorController {
 
 
     }
+    @PostMapping("/encryptasymetrique")
+    public  String ChiffrementMessageAsymetrique(@RequestBody KeyGeneratorEntity key) {
+
+        return key.ChiffrementAsymetriqueMessage(key.getMessage(),key.getClepriv(),key.getClepub(),key.getAlgorithme());
+
+    }
     @PostMapping("/encryptfile")
     public  String ChiffrementFichierSmetrique(@RequestBody KeyGeneratorEntity key) {
 
@@ -97,6 +103,26 @@ public class KeyPairGeneratorController {
 
 
     }
+
+    @PostMapping("/dechiffrer")
+    public  String Dechifrer(@RequestBody KeyGeneratorEntity key) throws Exception {
+        return key.Dechiffrement(key.getAlgorithme(),key.getClepriv(),key.getTextCipher());
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

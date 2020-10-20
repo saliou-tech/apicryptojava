@@ -26,7 +26,17 @@ public class KeyGeneratorEntity {
     String clepriv;
     String clepub;
     String message;
+
+    public String getTextCipher() {
+        return textCipher;
+    }
+
+    public void setTextCipher(String textCipher) {
+        this.textCipher = textCipher;
+    }
+
     String file;
+    String textCipher;
 
     public String getHashingAlgo() {
         return hashingAlgo;
@@ -474,6 +484,120 @@ String filename =file+taille+".txt";
 
         return "";
 
+    }
+
+
+    public String ChiffrementAsymetriqueMessage(String message ,String clepriv, String clepub,String algorithme){
+        System.out.println("test");
+        SecureRandom secureRandom=new SecureRandom();
+        byte bytes[]=new byte[20];
+        secureRandom.nextBytes(bytes);
+
+        System.out.println("test");
+        try {
+            System.out.println("test");
+            byte[] messageBytes=message.getBytes();
+//            KeyPairGenerator keyPairGen= KeyPairGenerator.getInstance("RSA");
+//            keyPairGen.initialize(1024, secureRandom);
+//            KeyPair keyPair=keyPairGen.generateKeyPair();
+
+            // cle private
+            byte[] keyBytes;
+            keyBytes = (new BASE64Decoder()).decodeBuffer(clepriv);
+            System.out.println("test");
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+            System.out.println(keySpec);
+            System.out.println(algorithme);
+            KeyFactory keyFactory = KeyFactory.getInstance(algorithme);
+            System.out.println(keyFactory);
+            PrivateKey priv = keyFactory.generatePrivate(keySpec);
+            System.out.println("test");
+            System.out.println("lacleprie"+priv);
+
+            //cle pub
+            byte[] publicBytes = Base64.getDecoder().decode(clepub);
+            X509EncodedKeySpec keySpecpub = new X509EncodedKeySpec(publicBytes);
+            KeyFactory keyFactorypub = KeyFactory.getInstance(algorithme);
+            PublicKey pub = keyFactorypub.generatePublic(keySpecpub);
+
+//            byte[] keypublicBytes;
+//            keypublicBytes = (new BASE64Decoder()).decodeBuffer(clepub);
+//
+//            PKCS8EncodedKeySpec keySpecpub = new PKCS8EncodedKeySpec(keypublicBytes);
+//            System.out.println(keySpecpub);
+//            System.out.println(algorithme);
+//            KeyFactory keyFactorypub = KeyFactory.getInstance(algorithme);
+//            System.out.println(keyFactorypub.toString());
+//            PublicKey pub=keyFactorypub.generatePublic(keySpecpub);
+//            System.out.println("laclepublique"+pub);
+
+
+            // PrivateKey priv=keyPair.getPrivate();
+            //System.out.println("cl� private RSA: "+ByteHex.bytesToHex(priv.getEncoded()));
+            // cl� public
+           // PublicKey pub=keyPair.getPublic();
+            //System.out.println("cl� public RSA: "+ByteHex.bytesToHex(pub.getEncoded()));
+            Cipher cipher=Cipher.getInstance(algorithme);
+            cipher.init(Cipher.ENCRYPT_MODE, pub);
+            byte[] textCipher=cipher.doFinal(messageBytes);
+            System.out.println("Message Chiffrer: "+textCipher);
+            return Base64.getEncoder().encodeToString(textCipher);
+
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+
+    }
+
+    public String Dechiffrement(String algorithme,String clepriv,String textCipher)  {
+        try {
+
+            byte[] keyBytes;
+            keyBytes = (new BASE64Decoder()).decodeBuffer(clepriv);
+            System.out.println("test");
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+            System.out.println(keySpec);
+            System.out.println(algorithme);
+            KeyFactory keyFactory = KeyFactory.getInstance(algorithme);
+            System.out.println(keyFactory);
+            PrivateKey priv = keyFactory.generatePrivate(keySpec);
+            System.out.println("test");
+            System.out.println("lacleprie"+priv);
+            Cipher c=Cipher.getInstance(algorithme);
+            c.init(Cipher.DECRYPT_MODE, priv);
+            byte[] clair=c.doFinal(  Base64.getDecoder().decode(textCipher));
+            System.out.println("message dechiffrer: "+clair);
+            return clair.toString();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+return null;
     }
 
 
