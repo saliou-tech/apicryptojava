@@ -7,6 +7,7 @@ import java.io.*;
 
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -14,6 +15,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import  javax.crypto.*;
@@ -564,6 +566,7 @@ String filename =file+taille+".txt";
     }
 
     public String Dechiffrement(String algorithme,String clepriv,String textCipher)  {
+        byte[] textCipher1 = Base64.getDecoder().decode(textCipher);
         try {
 
             byte[] keyBytes;
@@ -579,9 +582,9 @@ String filename =file+taille+".txt";
             System.out.println("lacleprie"+priv);
             Cipher c=Cipher.getInstance(algorithme);
             c.init(Cipher.DECRYPT_MODE, priv);
-            byte[] clair=c.doFinal(  Base64.getDecoder().decode(textCipher));
+            byte[] clair=c.doFinal(textCipher1);
             System.out.println("message dechiffrer: "+clair);
-            return clair.toString();
+            return new String(clair, Charset.forName("UTF-8"));
         } catch (InvalidKeySpecException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
