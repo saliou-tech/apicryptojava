@@ -353,6 +353,52 @@ String filename =file+taille+".txt";
 
 }
 
+public String ChiffrementFichierAsymetrique(String algorithme,String file,String clepriv){
+    String filename =file+algorithme+".txt";
+        try{
+
+            byte[] keyBytes;
+            keyBytes = (new BASE64Decoder()).decodeBuffer(clepriv);
+            System.out.println("test");
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+            System.out.println(keySpec);
+            System.out.println(algorithme);
+            KeyFactory keyFactory = KeyFactory.getInstance(algorithme);
+            System.out.println(keyFactory);
+            PrivateKey priv = keyFactory.generatePrivate(keySpec);
+            System.out.println("test");
+            System.out.println("lacleprie"+priv);
+
+            FileInputStream fl=new FileInputStream(file);
+            FileOutputStream fos=new FileOutputStream(new File(filename));
+            Cipher cipher=Cipher.getInstance(algorithme);
+            cipher.init(Cipher.ENCRYPT_MODE, priv);
+
+            CipherInputStream cis=new CipherInputStream(fl,cipher);
+            byte[] buf =new byte[240];
+            int i =cis.read(buf);
+            while(i!=-1) {
+                fos.write(buf, 0, i);
+                i=cis.read(buf);
+            }
+            cis.close();
+            fos.close();
+            return "fichier chiffré avec succes";
+
+        } catch (NoSuchAlgorithmException | FileNotFoundException | NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
+
+    return "";
+
+}
+
 
    public KeyGeneratorEntity DigitalSignature(PrivateKey priv, String signingAlgo, String hashingAlgo)
             throws NoSuchAlgorithmException, InvalidKeyException{
