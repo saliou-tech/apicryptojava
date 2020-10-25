@@ -82,7 +82,7 @@ public class KeyPairGeneratorController {
     @PostMapping("/encryptasymetriquefile")
     public  String ChiffrementFichierAsymetrique(@RequestBody KeyGeneratorEntity key) {
 
-        return key.ChiffrementFichierAsymetrique(key.getAlgorithme(),key.getFile(),key.getClepriv());
+        return key.ChiffrementFichierAsymetrique(key.getAlgorithme(),key.getFile(),key.getTaille() );
 
     }
     @PostMapping("/encryptfile")

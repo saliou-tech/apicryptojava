@@ -353,26 +353,23 @@ String filename =file+taille+".txt";
 
 }
 
-public String ChiffrementFichierAsymetrique(String algorithme,String file,String clepriv){
+public String ChiffrementFichierAsymetrique(String algorithme,String file,int taille){
     String filename =file+algorithme+".txt";
         try{
 
-            byte[] keyBytes;
-            keyBytes = (new BASE64Decoder()).decodeBuffer(clepriv);
-            System.out.println("test");
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-            System.out.println(keySpec);
-            System.out.println(algorithme);
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithme);
-            System.out.println(keyFactory);
-            PrivateKey priv = keyFactory.generatePrivate(keySpec);
-            System.out.println("test");
-            System.out.println("lacleprie"+priv);
+
+            KeyPairGenerator keyPairGen=KeyPairGenerator.getInstance(algorithme);
+            keyPairGen.initialize(taille);
+            KeyPair keyPair=keyPairGen.generateKeyPair();
+
+            PublicKey publicKey = keyPair.getPublic();
+            PrivateKey privateKey = keyPair.getPrivate();
+
 
             FileInputStream fl=new FileInputStream(file);
             FileOutputStream fos=new FileOutputStream(new File(filename));
             Cipher cipher=Cipher.getInstance(algorithme);
-            cipher.init(Cipher.ENCRYPT_MODE, priv);
+            cipher.init(Cipher.ENCRYPT_MODE, privateKey);
 
             CipherInputStream cis=new CipherInputStream(fl,cipher);
             byte[] buf =new byte[240];
@@ -389,9 +386,7 @@ public String ChiffrementFichierAsymetrique(String algorithme,String file,String
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
+        }  catch (InvalidKeyException e) {
             e.printStackTrace();
         }
 
